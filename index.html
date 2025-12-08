@@ -56,7 +56,7 @@
   width: 100vw;
   height: 100vh;
 
-  background-image: url("https://images.unsplash.com/photo-1497366754035-f200968a6e72?q=80&w=1169&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D");
+  background-image: url("https://images.unsplash.com/vector-1747765483677-e3ad55df3ada?q=80&w=880&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D");
   background-repeat: no-repeat;
   background-position: center center;
   background-size: cover;        /*  FILL ENTIRE SCREEN */
@@ -65,7 +65,6 @@
 
 
 }
-
 
     .auth-overlay {
   position: fixed;
@@ -83,19 +82,85 @@
       border-radius: 22px;
       box-shadow: 0 25px 70px rgba(0,0,0,0.7);
     }
+
+    <!-- #three-bg {
+    position: fixed;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    z-index: -5;   /* stays behind everything */
+    }
+    canvas {
+    display: block;
+    }
+
+    #three-blur-layer {
+    position: fixed;
+    inset: 0;
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    z-index: -4;
+    pointer-events: none;
+    }
+
+    canvas {
+    display: block;
+    } -->
+
+    /* ✅ Static background after login */
+    #static-bg {
+    position: fixed;
+    inset: 0;
+    background-image: url("assets/undraw_hiring_8szx.svg");
+    background-size: 30%;          /* Try 60%, 70%, or 80% */
+    background-position: center 90%;
+    background-repeat: no-repeat;
+
+    background-color: #eaecf3;
+    z-index: -6;
+    opacity: 1;
+    transition: opacity 0.8s ease;
+    }
+
+    #static-bg.active {
+    opacity: 1;
+    }
+
+    /* ✅ Hide particles when logged in */
+    .hide-three #three-bg,
+    .hide-three #three-blur-layer {
+    display: none;
+    }
+
+
+
   </style>
 </head>
 
 <body class="antialiased">
+<div id="three-bg"></div>
+<div id="three-blur-layer"></div>
+<div id="static-bg"></div>
+
+
+
 
 <!-- NAVBAR -->
 <header class="header-blur fixed top-0 left-0 w-full z-[200]">
-  <div class="max-w-6xl mx-auto flex justify-between items-center px-6 py-4">
+  <div class="w-full flex justify-between items-center px-6 py-4">
     <h1 class="text-xl font-bold tracking-widest">JOB PORTAL</h1>
-    <div class="space-x-4">
-      <button onclick="show('login')" class="text-gray-400 hover:text-white">LOGIN</button>
-      <button onclick="show('signup')" class="text-gray-400 hover:text-white">SIGNUP</button>
+    <div id="navActions" class="space-x-4 hidden">
+    <span id="navWelcome" class="text-cyan-400 font-semibold"></span>
+    <button onclick="logout()" class="text-red-400 hover:text-red-300 text-sm">
+        LOGOUT
+    </button>
     </div>
+
+    <div id="navAuth" class="space-x-4">
+    <button onclick="show('login')" class="text-gray-400 hover:text-white">LOGIN</button>
+    <button onclick="show('signup')" class="text-gray-400 hover:text-white">SIGNUP</button>
+    </div>
+
   </div>
 </header>
 
@@ -104,27 +169,6 @@
 
   <!-- HOME (HIDDEN BY DEFAULT) -->
   <section id="home" class="hidden grid md:grid-cols-3 gap-8 fade">
-
-    <div class="card">
-      <h3 class="text-xl font-bold mb-2">Java Developer</h3>
-      <p class="text-gray-400">Infosys</p>
-      <p class="text-gray-500 mb-3">Pune</p>
-      <button onclick="secureApply()" class="accent font-semibold">APPLY →</button>
-    </div>
-
-    <div class="card">
-      <h3 class="text-xl font-bold mb-2">Frontend Developer</h3>
-      <p class="text-gray-400">TCS</p>
-      <p class="text-gray-500 mb-3">Mumbai</p>
-      <button onclick="secureApply()" class="accent font-semibold">APPLY →</button>
-    </div>
-
-    <div class="card">
-      <h3 class="text-xl font-bold mb-2">Spring Boot Intern</h3>
-      <p class="text-gray-400">Wipro</p>
-      <p class="text-gray-500 mb-3">Hyderabad</p>
-      <button onclick="secureApply()" class="accent font-semibold">APPLY →</button>
-    </div>
 
   </section>
 
@@ -146,6 +190,30 @@
     <button class="w-full border border-cyan-400 py-2 hover:bg-cyan-400 hover:text-black transition">
       SUBMIT
     </button>
+  </section>
+ 
+    <!-- JOB DETAIL -->
+    <section id="jobList" class="grid md:grid-cols-3 gap-8"></section>
+
+    <section id="jobDetail" class="hidden max-w-3xl mx-auto mt-16 card p-8 fade">
+    <h2 id="jdTitle" class="text-2xl font-bold mb-2"></h2>
+    <p id="jdCompany" class="text-gray-400"></p>
+    <p id="jdLocation" class="text-gray-500 mb-4"></p>
+
+    <p class="text-lg font-semibold mt-4">Job Description</p>
+    <p id="jdDesc" class="text-gray-400 mb-4"></p>
+
+    <p class="text-lg font-semibold">Requirements</p>
+    <p id="jdReq" class="text-gray-400 mb-6"></p>
+
+    <button id="applyRedirect"
+      class="border border-cyan-400 px-6 py-2 rounded hover:bg-cyan-400 hover:text-black transition">
+      APPLY NOW
+    </button>
+
+    <p onclick="show('home')" class="mt-6 text-sm text-gray-500 cursor-pointer">
+      ← Back to Jobs
+    </p>
   </section>
 
 </main>
@@ -205,12 +273,16 @@
         <span onclick="show('login')" class="accent cursor-pointer">LOGIN</span>
       </p>
     </div>
-  </div>
+  </div>    
 </section>
+
+
+
 
 <!-- ======================= JAVASCRIPT ======================= -->
 <script>
-const sections = ["home","login","signup","dashboard","apply"];
+/*  ADD jobDetail HERE */
+const sections = ["home","login","signup","dashboard","apply","jobDetail"];
 
 //  Show one section at a time
 function show(id){
@@ -218,14 +290,12 @@ function show(id){
     const el = document.getElementById(sec);
     if(el){
       el.classList.add("hidden");
-      el.style.display = "none";
     }
   });
 
   const active = document.getElementById(id);
   if(active){
     active.classList.remove("hidden");
-    active.style.display = "block";
   }
 
   if(id === "login" || id === "signup"){
@@ -235,22 +305,63 @@ function show(id){
   }
 }
 
-//  PROTECT APPLY
-function secureApply(){
-  const user = localStorage.getItem("user");
-  if(!user){
-    alert("Please login first to apply.");
-    show("login");
-  } else {
-    show("apply");
-  }
+//  LOAD JOBS FROM BACKEND
+function loadJobs(){
+  fetch("http://localhost:8081/jobs/all")
+    .then(res => res.json())
+    .then(jobs => {
+      const jobList = document.getElementById("jobList");
+      jobList.innerHTML = "";
+
+      jobs.forEach(job => {
+        jobList.innerHTML += `
+          <div class="card">
+            <h3 class="text-xl font-bold mb-2">${job.title}</h3>
+            <p class="text-gray-400">${job.company}</p>
+            <p class="text-gray-500 mb-3">${job.location}</p>
+            <button onclick="viewJob(${job.id})" class="accent font-semibold">
+              APPLY →
+            </button>
+          </div>
+        `;
+      });
+    });
 }
+
+//  VIEW SINGLE JOB DETAIL PAGE
+function viewJob(id){
+  console.log("Clicked job ID:", id);
+
+  fetch(`http://localhost:8081/jobs/${id}`)
+    .then(res => res.json())
+    .then(job => {
+
+      console.log("Fetched job:", job);
+
+      document.getElementById("jdTitle").innerText = job.title;
+      document.getElementById("jdCompany").innerText = job.company;
+      document.getElementById("jdLocation").innerText = job.location;
+      document.getElementById("jdDesc").innerText = job.description;
+      document.getElementById("jdReq").innerText = job.requirements;
+
+      const btn = document.getElementById("applyRedirect");
+      btn.onclick = () => window.open(job.applyLink, "_blank");
+
+      show("jobDetail");
+    })
+    .catch(err => {
+      console.error("Error loading job:", err);
+      alert("Failed to load job details.");
+    });
+}
+
 
 //  SIGNUP
 function signup(){
   const nameVal = document.getElementById("name").value;
   const emailVal = document.getElementById("email").value;
   const passwordVal = document.getElementById("password").value;
+
   fetch("http://localhost:8081/signup",{
     method:"POST",
     headers:{ "Content-Type":"application/json" },
@@ -279,33 +390,65 @@ function login(){
   })
   .then(r => r.json())
   .then(u => {
-    if(u){
+    if(u && u.name){
       localStorage.setItem("user", JSON.stringify(u));
-      userInfo.innerText = u.name + " | " + u.email;
+
+      // ✅ SHOW WELCOME NAME
+      document.getElementById("navWelcome").innerText = "Welcome " + u.name;
+      document.getElementById("navAuth").classList.add("hidden");
+      document.getElementById("navActions").classList.remove("hidden");
+      document.body.classList.add("hide-three");
+      document.getElementById("static-bg").classList.add("active");
+
+
       show("home");
+      loadJobs();
     } else {
       alert("Invalid Credentials");
     }
+  })
+  .catch(err => {
+    console.error("Login Error:", err);
+    alert("Login failed");
   });
 }
 
-// LOGOUT → LOCK AGAIN
+//  LOGOUT → LOCK AGAIN
 function logout(){
   localStorage.clear();
+
+  document.body.classList.remove("hide-three");
+  document.getElementById("static-bg").classList.remove("active");
+
+  document.getElementById("navWelcome").innerText = "";
+  document.getElementById("navActions").classList.add("hidden");
+  document.getElementById("navAuth").classList.remove("hidden");
+
   show("login");
 }
 
-//  ON PAGE LOAD → FORCE LOGIN
+//  ON PAGE LOAD → AUTO LOGIN IF USER EXISTS
 window.onload = function(){
   const user = localStorage.getItem("user");
+
   if(user){
     const u = JSON.parse(user);
-    userInfo.innerText = u.name + " | " + u.email;
+
+    document.getElementById("navWelcome").innerText = "Welcome " + u.name;
+    document.getElementById("navAuth").classList.add("hidden");
+    document.getElementById("navActions").classList.remove("hidden");
+
+    // ✅ Static BG on refresh
+    document.body.classList.add("hide-three");
+    document.getElementById("static-bg").classList.add("active");
+
     show("home");
+    loadJobs();
   } else {
     show("login");
   }
 }
+
 </script>
 
 </body>

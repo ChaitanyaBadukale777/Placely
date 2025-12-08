@@ -1,4 +1,7 @@
 com/jobportal/BackendApplication.class
-com/jobportal/repository/UserRepository.class
 com/jobportal/controller/AuthController.class
+com/jobportal/controller/JobController.class
+com/jobportal/repository/UserRepository.class
+com/jobportal/model/Job.class
 com/jobportal/model/User.class
+com/jobportal/repository/JobRepository.class
