@@ -248,13 +248,16 @@ function secureApply(){
 
 //  SIGNUP
 function signup(){
-  fetch("http://localhost:8080/signup",{
+  const nameVal = document.getElementById("name").value;
+  const emailVal = document.getElementById("email").value;
+  const passwordVal = document.getElementById("password").value;
+  fetch("http://localhost:8081/signup",{
     method:"POST",
     headers:{ "Content-Type":"application/json" },
     body: JSON.stringify({
-      name: name.value,
-      email: email.value,
-      password: password.value
+      name: nameVal,
+      email: emailVal,
+      password: passwordVal
     })
   })
   .then(r => r.text())
@@ -266,7 +269,7 @@ function signup(){
 
 //  LOGIN
 function login(){
-  fetch("http://localhost:8080/signin",{
+  fetch("http://localhost:8081/signin",{
     method:"POST",
     headers:{ "Content-Type":"application/json" },
     body: JSON.stringify({
